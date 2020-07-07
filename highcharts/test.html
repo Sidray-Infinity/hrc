@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width-device-width, intial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+
+	<style>
+		#container1 {
+			float: left;
+			width: 45%;
+			height: 40%;
+			margin-top: 2%;
+			margin-left: 2%;
+			border: 2px solid #8BBFE5;
+			border-radius: 20px;
+
+		}
+
+		#container2 {
+			float: right;
+			width: 45%;
+			height: 40%;
+			margin-top: 2%;
+			margin-right: 2%;
+			border: 2px solid #8BBFE5;
+			border-radius: 20px;
+
+		}
+
+		.column {
+			float: left;
+			width: 25%;
+			padding: 0 35px;
+			margin: 1%;
+			height: 20%;
+		}
+
+
+		.card {
+			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+			padding: 2px;
+			text-align: center;
+			background-color: #ffffff;
+			width: 300px;
+			height: 80px;
+		}
+
+		h3 {
+			margin-bottom: 0;
+		}
+
+		p {
+			margin-top: 0;
+		}
+	</style>
+</head>
+
+
+<body>
+	<div class="column">
+		<div class="card">
+			<h3>Total No. of Cases</h3>
+			<p style="font-size: large;" id="total"></p>
+		</div>
+	</div>
+
+	<div class="column">
+		<div class="card">
+			<h3>No. of Recovered Cases</h3>
+			<p style="font-size: large;" id="recovered"></p>
+		</div>
+	</div>
+
+	<div class="row"></div>
+	<div class="column">
+		<div class="card">
+			<h3>No. of Deceased Cases</h3>
+			<p style="font-size: large;" id="deceased"></p>
+		</div>
+	</div>
+	</div>
+	<div id="container1"></div>
+	<div id="container2"></div>
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.7/crossfilter.min.js"></script>
+	<script src="dataset.js"></script>
+	<script>
+		var dt = crossfilter(data);
+		var totalstates = dt.dimension(d => d.Detected_State);
+		var c = totalstates.group().reduceCount(d => d.Num_cases);
+
+		var TransmissionType = dt.dimension(d => d.Type_of_transmission);
+		var d = TransmissionType.group().reduceCount(d => d.Num_cases);
+
+		var statusdim = dt.dimension(d => d.Current_Status);
+		var e = statusdim.group();
+
+		function prepareDataForHighcharts(groups) {
+			var categories = [];
+			var data = [];
+			var gdata = groups.top(10);
+			gdata.forEach(d => {
+				categories.push(d.key);
+				data.push(d.value);
+			});
+
+			return {
+				categories: categories,
+				data: data
+			}
+		}
+
+		function prepareDataforCards(groups) {
+			var decrese_value = 0;
+			var recovered_value = 0;
+			var total_case = 0;
+			var gdata = groups.top(4);
+
+			gdata.forEach(d => {
+				if (d.key == "Recovered")
+					recovered_value = (d.value);
+				else if (d.key == "Deceased")
+					decrese_value = (d.value);
+				else if (d.key == "Hospitalized") {
+					total_case = (d.value);
+				}
+			});
+			// console.log(values);
+			return {
+				rec: recovered_value,
+				des: decrese_value,
+				total: total_case
+			}
+		}
+
+		var tempObject1 = prepareDataForHighcharts(c);
+		var tempObject2 = prepareDataForHighcharts(d);
+		var tempObject3 = prepareDataforCards(e);
+
+		var t = tempObject3.total + tempObject3.rec + tempObject3.des;
+		//console.log(t);
+		document.getElementById('total').innerHTML = t;
+		document.getElementById('recovered').innerHTML = tempObject3.rec;
+		document.getElementById('deceased').innerHTML = tempObject3.des;
+
+		// document.getElementById("total").innerHTML=tempObject3.data[0]+tempObject3.data[1]+tempObject3.data[2];
+		// document.getElementById("recovered").innerHTML=tempObject3.data[1];
+		// document.getElementById("deceased").innerHTML=tempObject3.data[2]; 
+
+		var options1 = {
+			chart: {
+				renderTo: 'container1',
+				type: 'column'
+			},
+
+			title: {
+				text: 'Top 10 States with Most Number of Cases'
+			},
+
+			colors: ["red"],
+
+			credits: {
+				enabled: false,
+			},
+
+			subtitle: {
+				text: '1705948'
+			},
+
+			xAxis: {
+				title: {
+					text: 'State',
+					style: {
+						color: "#0000ff",
+						fontWeight: 'bold'
+					},
+				},
+				categories: tempObject1.categories
+			},
+
+			legend: {
+				enabled: true
+			},
+
+			yAxis: {
+				min: 0,
+				title: {
+					text: 'Count',
+					style: {
+						color: "#0000ff",
+						fontWeight: 'bold'
+					},
+				}
+			},
+
+			plotOptions: {
+				series: {
+					point: {
+						events: {
+							click: function () {
+								this.select(null, true);
+								var selectedPoints = this.series.chart.getSelectedPoints();
+								var filteredPoints = [];
+								for (let index = 0; index < selectedPoints.length; index++) {
+									filteredPoints.push(selectedPoints[index].category);
+								}
+								function multivalue_filter(values) {
+									return function (v) {
+										return values.indexOf(v) !== -1;
+									}
+								}
+								if (filteredPoints.length > 0) {
+									totalstates.filterFunction(multivalue_filter(filteredPoints));
+								} else totalstates.filter(null);
+
+								var newCard = prepareDataforCards(e);
+								var t = newCard.total + newCard.rec + newCard.des;
+								//console.log(t);
+								document.getElementById('total').innerHTML = t;
+								document.getElementById('recovered').innerHTML = newCard.rec;
+								document.getElementById('deceased').innerHTML = newCard.des;
+
+								var newData1 = prepareDataForHighcharts(d);
+								chart2.xAxis[0].setCategories(newData1.categories);
+								chart2.series[0].setData(newData1.data);
+							}
+						}
+					}
+				}
+			},
+
+			tooltip: {
+				pointFormat: 'Total No. Of cases: <b>{point.y:f}</b>'
+			},
+
+			series: [{
+				name: 'Count',
+				data: tempObject1.data
+			}],
+		}
+
+		var options2 = {
+			chart: {
+				renderTo: 'container2',
+				type: 'column'
+			},
+
+			title: {
+				text: 'Types of Transmission for the Individuals'
+			},
+
+			colors: ["yellow"],
+
+			credits: {
+				enabled: false,
+			},
+
+			subtitle: {
+				text: '1705948'
+			},
+
+			xAxis: {
+				title: {
+					text: 'Transmission Type',
+					style: {
+						color: "#0000ff",
+						fontWeight: 'bold'
+					},
+				},
+				categories: tempObject2.categories
+			},
+
+			legend: {
+				enabled: true
+			},
+
+			yAxis: {
+				min: 0,
+				title: {
+					text: 'Count',
+					style: {
+						color: "#0000ff",
+						fontWeight: 'bold'
+					},
+				}
+			},
+
+			plotOptions: {
+				series: {
+					point: {
+						events: {
+							click: function () {
+								this.select(null, true);
+								var selectedPoints = this.series.chart.getSelectedPoints();
+								var filteredPoints = [];
+								for (let index = 0; index < selectedPoints.length; index++) {
+									filteredPoints.push(selectedPoints[index].category);
+								}
+								function multivalue_filter(values) {
+									return function (v) {
+										return values.indexOf(v) !== -1;
+									}
+								}
+								if (filteredPoints.length > 0) {
+									TransmissionType.filterFunction(multivalue_filter(filteredPoints));
+								} else TransmissionType.filter(null);
+
+								var newCard = prepareDataforCards(e);
+								var t = newCard.total + newCard.rec + newCard.des;
+								//console.log(t);
+								document.getElementById('total').innerHTML = t;
+								document.getElementById('recovered').innerHTML = newCard.rec;
+								document.getElementById('deceased').innerHTML = newCard.des;
+
+								var newData2 = prepareDataForHighcharts(c);
+								chart1.xAxis[0].setCategories(newData2.categories);
+								chart1.series[0].setData(newData2.data);
+							}
+						}
+					}
+				}
+			},
+
+			tooltip: {
+				pointFormat: 'Total No. of Cases: <b>{point.y:.f}</b>'
+			},
+
+			series: [{
+				name: 'Count',
+				data: tempObject2.data
+			}],
+		}
+
+		var chart1 = new Highcharts.chart(options1);
+		var chart2 = new Highcharts.chart(options2);
+	</script>
+</body>
+
+</html>

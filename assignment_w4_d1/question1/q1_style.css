@@ -1,0 +1,74 @@
+.header {
+    background-color: lightgray;
+    padding: 10px;
+    position: relative;
+    font-size: 40px;
+    font-family: monospace;
+}
+
+.subheading {
+    font-size: 20px;
+    font-family: monospace;
+    background-color: lightgray;
+    padding: 10px;
+    position: relative;
+}
+
+
+.form_space {
+    background-color: antiquewhite;
+}
+
+textarea {
+    width: 60%;
+    height: 140px;
+    padding: 15px 20px 0px 5px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+
+    resize: none;
+  }
+
+.label {
+    padding-left: 10px;
+    padding-top: 2px;
+    font-size: 16px;
+    font-family: monospace;
+}
+
+input[type=text] {
+    width: 40%;
+    
+    padding: 3px 18px 12px 3px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+input:focus {
+    border: 2px solid rgb(110, 206, 201);
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+    align-items: center;
+}
+  
+
+.card {
+    border: 0;
+    border-radius: 0.1875rem;
+    padding: 30px 40px 30px 40px;
+    display: inline-block;
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 20px;
+    box-shadow: 0px 5px 65px 0px rgba(0, 0, 0, 0.4);
+}

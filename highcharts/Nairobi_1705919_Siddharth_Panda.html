@@ -1,0 +1,295 @@
+<html>
+
+<head>
+	<style>
+		.card {
+			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+			transition: 0.3s;
+			height: 100px;
+			width: 230px;
+			margin: 30px;
+
+		}
+
+		.card:hover {
+			box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+		}
+
+		.container {
+			padding: 16px;
+			text-align: center;
+		}
+	</style>
+
+</head>
+
+<body>
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.7/crossfilter.min.js"></script>
+	<script src="json_file.js"></script>
+	<div style="display: flex; width: 100%">
+		<div class="card" style="margin-left: 200px">
+			<div class="container">
+				Total number of Cases
+				<p id="total" style="font-size: 25px;">23</p>
+			</div>
+		</div>
+		<div class="card" style="margin-left: 100px">
+			<div class="container">
+				No. of Recovered Cases
+				<p id="recovered" style="font-size: 25px;">23</p>
+			</div>
+		</div>
+		<div class="card" style="margin-left: 100px">
+			<div class="container">
+				No. of Deseased Cases
+				<p id="deaths" style="font-size: 25px;">23</p>
+			</div>
+		</div>
+	</div>
+	<div style="display: flex; margin-left: 60px">
+		<div id="graph1" style="margin: 30px"></div>
+		<div id="graph2" style="margin: 30px"></div>
+	</div>
+	<script>
+
+
+		function forHighChartsGroup(group) {
+			const categories = []
+			const data = []
+			var gdata = group.all()
+			gdata.forEach(e => {
+				categories.push(e.key)
+				data.push(e.value);
+			})
+
+			return {
+				categories: categories,
+				data: data
+			}
+
+		}
+
+		function forHighChartsJson(json_obj) {
+			const categories = []
+			const data = []
+			json_obj.map((item, index) => {
+				categories.push(item.key)
+				data.push(item.value);
+			})
+
+			return {
+				categories: categories,
+				data: data
+			}
+		}
+
+		var json_data = crossfilter(data);
+		var all = json_data.groupAll();
+
+		var Detected_State_dim = json_data.dimension(d => d.Detected_State)
+		var countGroup = Detected_State_dim.group().reduceSum(d => d.Num_cases)
+
+		var curr_status = json_data.dimension(d => d.Current_Status)
+
+		var Type_of_trasmission_dim = json_data.dimension(d => d.Type_of_transmission)
+		var countGroup2 = Type_of_trasmission_dim.group()
+
+		var graph1_obj = forHighChartsJson(countGroup.top(10))
+		var graph2_obj = forHighChartsGroup(countGroup2);
+
+
+		document.getElementById("total").innerHTML = all.value();
+		document.getElementById("recovered").innerHTML = curr_status.group().all()[2].value;
+		document.getElementById("deaths").innerHTML = curr_status.group().all()[0].value;
+
+		var options1 = {
+			chart: {
+				renderTo: "graph1",
+				type: 'column',
+				borderWidth: 1,
+				borderColor: '#0000b3',
+				borderRadius: 15,
+			},
+			title: {
+				text: 'Top 10 states with most Number of Cases'
+			},
+			subtitle: {
+				text: '1705919'
+			},
+			xAxis: {
+				categories: graph1_obj.categories,
+				crosshair: true,
+				title: {
+					text: 'State',
+					style: {
+						color: "#0000ff"
+					}
+				},
+
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: 'Count',
+					style: {
+						color: "#0000ff"
+					}
+				},
+				tickInterval: 25
+			},
+			legend: {
+				align: 'center'
+			},
+			plotOptions: {
+				column: {
+					pointPadding: 0.2,
+					borderWidth: 0,
+					color: "#FF0000"
+				},
+				series: {
+					point: {
+						events: {
+							click: function () {
+								this.select(null, true);
+								var selectedPoints = this.series.chart.getSelectedPoints();
+
+
+								var filteredPoints = [];
+								for (let index = 0; index < selectedPoints.length; index++) {
+									filteredPoints.push(selectedPoints[index].category);
+
+								}
+								function multivalue_filter(values) {
+									return function (v) {
+										return values.indexOf(v) !== -1;
+									}
+								}
+
+
+								if (filteredPoints.length > 0) {
+									Detected_State_dim.filterFunction(multivalue_filter(filteredPoints));
+									document.getElementById("total").innerHTML = all.value();
+									document.getElementById("recovered").innerHTML = curr_status.group().all()[2].value;
+									document.getElementById("deaths").innerHTML = curr_status.group().all()[0].value;
+								} else {
+									Detected_State_dim.filterAll();
+									document.getElementById("total").innerHTML = all.value();
+									document.getElementById("recovered").innerHTML = curr_status.group().all()[2].value;
+									document.getElementById("deaths").innerHTML = curr_status.group().all()[0].value;
+								}
+								var newData1 = forHighChartsGroup(countGroup2);
+
+								chart2.xAxis[0].setCategories(newData1.categories);
+								chart2.series[0].setData(newData1.data);
+							}
+						}
+					}
+				}
+			},
+			series: [{
+				name: 'Count',
+				data: graph1_obj.data,
+
+
+			}]
+		}
+
+		var options2 = {
+			chart: {
+				renderTo: "graph2",
+				type: 'column',
+				borderWidth: 1,
+				borderColor: '#0000b3',
+				borderRadius: 15,
+			},
+			title: {
+				text: 'Types of Transmission for the individuals'
+			},
+			subtitle: {
+				text: '1705919'
+			},
+			xAxis: {
+				categories: graph2_obj.categories,
+				crosshair: true,
+				title: {
+					text: 'Transmission Type',
+					style: {
+						color: "#0000ff"
+					}
+				},
+
+			},
+			yAxis: {
+				min: 0,
+				title: {
+					text: 'Count',
+					style: {
+						color: "#0000ff"
+					}
+				},
+				tickInterval: 50
+			},
+			legend: {
+				align: 'center'
+			},
+			plotOptions: {
+				column: {
+					pointPadding: 0.2,
+					borderWidth: 0,
+					color: "#FFFF00 "
+				},
+				series: {
+					point: {
+						events: {
+							click: function () {
+								this.select(null, true);
+								var selectedPoints = this.series.chart.getSelectedPoints();
+
+
+								var filteredPoints = [];
+								for (let index = 0; index < selectedPoints.length; index++) {
+									filteredPoints.push(selectedPoints[index].category);
+
+								}
+								function multivalue_filter(values) {
+									return function (v) {
+										return values.indexOf(v) !== -1;
+									}
+								}
+
+
+								if (filteredPoints.length > 0) {
+									Type_of_trasmission_dim.filterFunction(multivalue_filter(filteredPoints));
+									document.getElementById("total").innerHTML = all.value();
+									document.getElementById("recovered").innerHTML = curr_status.group().all()[2].value;
+									document.getElementById("deaths").innerHTML = curr_status.group().all()[0].value;
+								} else {
+									Type_of_trasmission_dim.filterAll();
+									document.getElementById("total").innerHTML = all.value();
+									document.getElementById("recovered").innerHTML = curr_status.group().all()[2].value;
+									document.getElementById("deaths").innerHTML = curr_status.group().all()[0].value;
+								}
+								var newData1 = forHighChartsJson(countGroup.top(10));
+
+								chart1.xAxis[0].setCategories(newData1.categories);
+								chart1.series[0].setData(newData1.data);
+							}
+						}
+					}
+				}
+			},
+			series: [{
+				name: 'Count',
+				data: graph2_obj.data,
+			}]
+		}
+
+
+		var chart1 = new Highcharts.chart(options1);
+		var chart2 = new Highcharts.chart(options2);
+	</script>
+
+</body>
+
+</html>

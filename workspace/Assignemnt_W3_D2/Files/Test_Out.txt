@@ -1,0 +1,5 @@
+These features can then be used in building machine learning or deep learning models easily.
+Feature Engineering is often known as the secret sauce to creating superior and better performing machine learning models. 
+The importance of feature engineering is even more important for unstructured, textual data because we need to convert free flowing text into some numeric representations which can then be understood by machine learning algorithms. 
+Even with the advent of automated feature engineering capabilities, you would still need to understand the core concepts behind different feature engineering strategies before applying them as black box models. 
+Always remember, “If you are given a box of tools to repair a house, you should know when to use a power drill and when to use a hammer!”.

@@ -1,0 +1,3 @@
+Executed SQL Statement : load data local infile 'D:\\hrc\\Data Uploading.csv' into table `w3d2`.`datauploading` fields escaped by '\\' terminated by '\t' lines terminated by '\n' (`pk_id`) 
+Error Number : 3948 
+Error Message: Loading local data is disabled; this must be enabled on both the client and server sides 

@@ -1,0 +1,18 @@
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/1.4.7/crossfilter.js"></script>
+    <script src="dataset.js"></script>
+    <script>
+        var orders = crossfilter(dataset);
+        var quantity = orders.dimension(d => d.quantity)
+        console.log(quantity);
+    </script>
+</body>
+
+</html>

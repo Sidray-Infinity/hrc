@@ -1,0 +1,11 @@
+We Have Covered Various Feature Engineering Strategies For Dealing With Structured Data In The First Two Parts Of This Series. 
+Check Out Part-I: Continuous, Numeric Data And Part-II: Discrete, Categorical Data For A Refresher. 
+In This Article, We Will Look At How To Work With Text Data, Which Is Definitely One Of The Most Abundant Sources Of Unstructured Data. 
+Text Data Usually Consists Of Documents Which Can Represent Words, Sentences Or Even Paragraphs Of Free Flowing Text. 
+The Inherent Unstructured (no Neatly Formatted Data Columns!) And Noisy Nature Of Textual Data Makes It Harder For Machine Learning Methods To Directly Work On Raw Text Data. 
+Hence, In This Article, We Will Follow A Hands-on Approach To Explore Some Of The Most Popular And Effective Strategies For Extracting Meaningful Features From Text Data. 
+These Features Can Then Be Used In Building Machine Learning Or Deep Learning Models Easily. 
+Feature Engineering Is Often Known As The Secret Sauce To Creating Superior And Better Performing Machine Learning Models. 
+The Importance Of Feature Engineering Is Even More Important For Unstructured, Textual Data Because We Need To Convert Free Flowing Text Into Some Numeric Representations Which Can Then Be Understood By Machine Learning Algorithms. 
+Even With The Advent Of Automated Feature Engineering Capabilities, You Would Still Need To Understand The Core Concepts Behind Different Feature Engineering Strategies Before Applying Them As Black Box Models. 
+Always Remember, “If You Are Given A Box Of Tools To Repair A House, You Should Know When To Use A Power Drill And When To Use A Hammer!”. 
